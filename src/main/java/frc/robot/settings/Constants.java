@@ -313,68 +313,6 @@ public static final class ShooterConstants{
   public static final double shooterup = 45;
 
 }
-public static final class ClimberConstants{
-  public static final int CLIMBER_MOTOR_RIGHT = 23;
-  public static final int CLIMBER_MOTOR_LEFT = 22;
-  public static final double CLIMBER_SPEED_DOWN = 1;
-  public static final double CLIMBER_SPEED_UP = -1;
-  public static final double MAX_MOTOR_ROTATIONS = 235;
-
-  //TODO: refine these values
-  public static final double CLIMBER_VOLTAGE_ALIGN = 0.25;
-  public static final double CLIMBER_VOLTAGE_PULL_DOWN = 3;
-  public static final double CLIMBER_RPM = 0.1;
-  public static final int Right_HALL_EFFECT_INPUT = 9;
-  public static final int LEFT_HALL_EFFECT_INPUT = 8;
-}
-public static final class IndexerConstants{
-  public static final int INDEXER_MOTOR = 11;
-  public static final int CURRENT_LIMIT = 50;
-  public static final double INDEXER_INTAKE_SPEED = 1*0.6;//0.903 ;//speed to pick up at 10 ft/s
-  public static final double HUMAN_PLAYER_INDEXER_SPEED = -0.5;//should be 0.5 TODO change to positive
-  public static final double INDEXER_SHOOTING_RPS = 90;
-  public static final double INDEXER_SHOOTING_POWER = 1*0.6;
-  public static final double PRAC_INDEXER_AMP_SPEED = 170;
-  public static final double COMP_INDEXER_AMP_SPEED = 135;
-  public static final double INDEXER_KS = 0.35;
-  public static final double INDEXER_KV = 0.103;
-  public static final double INDEXER_KA = 0.01;
-  public static final double INDEXER_KP = 0.15;
-  /** the velocity to target when moving forward a set distance. in RPS */
-  public static final double INDEXER_CRUISE_VELOCITY = 40;
-  /** the acceleration to target target when moving to a set speed. In RPS^2*/
-  public static final double INDEXER_ACCELERATION = 800; // at 400 acceleration, the motor takes 0.1 seconds to reach 40 RPS
-  /** the jerk to target when moving to a set acceleration. In RPS^3.  */
-  public static final double INDEXER_JERK = 8000; // at 4000 jerk, the motor takes 0.4 seconds to reach 400 RPS^2
-  /**
-   * multiply motor rotations by this value to get inches. Divide inches by this value to get motor rotations.
-   */
-  public static final double MOTOR_ROTATIONS_TO_INCHES = 0.71;
-
-  public static final double AMP_SHOT_INCHES = 16;
-}
-public static final class IntakeConstants{
-  public static final int INTAKE_1_MOTOR = 20;
-  public static final int INTAKE_2_MOTOR = 21;
-public static final int INTAKE_SIDE_MOTOR_LEFT = 25;
-    public static final int INTAKE_SIDE_MOTOR_RIGHT = 26;
-  public static final int BRUSH_1_MOTOR = 2491;
-  public static final int BRUSH_2_MOTOR = 2491;
-  public static final int BRUSH_3_MOTOR = 2491;
-    /** the desired speed for the intake when doing ground intake. In Percent-of-full-power, from -1 to 1 */
-  public static final double INTAKE_SPEED = 0.65*0.6;//0.5834 ; // ground intakes speed. 0.4167 picks up at 10 ft/s
-  public static final double INTAKE_SIDE_SPEED = 0.65*0.6;
-  public static final double INTAKE_MAX_VELOCITY = 11000;
-
-  public static final double INTAKE_1_kP = 0.00002;
-  public static final double INTAKE_1_kI = 0;
-  public static final double INTAKE_1_kD = 0.0008;
-  public static final double INTAKE_1_kFF = 0.000085;
-  public static final double INTAKE_2_kP = 0.00007;
-  public static final double INTAKE_2_kI = 0;//0.7;
-  public static final double INTAKE_2_kD = 0;//0.002;
-  public static final double INTAKE_2_kF = 0.00009;
-}
 public static final class CTREConfigs {
   public TalonFXConfiguration driveMotorConfig;
   public TalonFXConfiguration steerMotorConfig;

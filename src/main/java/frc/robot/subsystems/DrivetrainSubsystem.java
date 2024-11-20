@@ -63,7 +63,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
-import frc.robot.commands.AngleShooter;
 import frc.robot.commands.RotateRobot;
 import frc.robot.helpers.MotorLogger;
 import frc.robot.helpers.MythicalMath;
@@ -106,7 +105,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	double m_DesiredShooterAngle;
 	double turningSpeed;
 	RotateRobot rotateRobot;
-	AngleShooter angleShooter;
 	int accumulativeTurns;
 	Pose2d dtvalues;
 	double shootingSpeed = ShooterConstants.SHOOTING_SPEED_MPS;
@@ -558,8 +556,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		}
 		speedController.setSetpoint(calculateSpeakerAngleMoving());
 		updateOdometry();
-		AngleShooterSubsystem.setDTPose(getPose());
-		AngleShooterSubsystem.setDTChassisSpeeds(getChassisSpeeds());
 		if (Preferences.getBoolean("Use Limelight", false)) {
 			LimelightHelpers.SetRobotOrientation(APRILTAG_LIMELIGHT2_NAME, odometer.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
 			LimelightHelpers.SetRobotOrientation(APRILTAG_LIMELIGHT3_NAME, odometer.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
