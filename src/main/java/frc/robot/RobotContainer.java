@@ -21,42 +21,21 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import frc.robot.commands.AimShooter;
 import frc.robot.commands.AimRobotMoving;
-import frc.robot.commands.CollectNote;
 import frc.robot.commands.Drive;
 import frc.robot.commands.DriveTimeCommand;
-import frc.robot.commands.GroundIntake;
-import frc.robot.commands.NamedCommands.AutoGroundIntake;
-import frc.robot.settings.Constants.IndexerConstants;
-import frc.robot.commands.IndexCommand;
-import frc.robot.commands.IndexerNoteAlign;
-import frc.robot.commands.IndicatorLights;
 import frc.robot.settings.Constants;
-import frc.robot.settings.Constants.ClimberConstants;
 import frc.robot.settings.Constants.DriveConstants;
 import frc.robot.settings.Constants.Field;
-import frc.robot.settings.Constants.IntakeConstants;
 import frc.robot.settings.Constants.ShooterConstants;
-import frc.robot.subsystems.AngleShooterSubsystem;
-import frc.robot.subsystems.Climber;
-import frc.robot.commands.ManualShoot;
 import frc.robot.commands.MoveMeters;
-import frc.robot.commands.OverrideCommand;
-import frc.robot.commands.PodiumCollectNote;
 import frc.robot.commands.WaitUntil;
 
-import frc.robot.commands.NamedCommands.InitialShot;
-import frc.robot.commands.NamedCommands.ShootNote;
-import frc.robot.commands.NamedCommands.AutoGroundIntake;
+
 import frc.robot.commands.goToPose.GoToAmp;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.Lights;
-import frc.robot.subsystems.IndexerSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.RobotState;
-import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -78,8 +57,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import frc.robot.commands.AngleShooter;
-import frc.robot.commands.ClimberCommand;
 
 
 /**
@@ -103,19 +80,12 @@ public class RobotContainer {
   private final boolean useDetectorLimelight = Preferences.getBoolean("Detector Limelight", true);
 
   private DrivetrainSubsystem driveTrain;
-  private IntakeSubsystem intake;
-  private ShooterSubsystem shooter;
-  private AngleShooterSubsystem angleShooterSubsystem;
+  
   private Drive defaultDriveCommand;
-  private Climber climber;
-  private Lights lights;
   private PS4Controller driverController;
   private PS4Controller operatorController;
   //private PS4Controller operatorController;
   private Limelight limelight;
-  private IndexCommand defaulNoteHandlingCommand;
-  private IndexerSubsystem indexer;
-  private AimShooter defaultShooterAngleCommand;
   private SendableChooser<String> climbSpotChooser;
   private SendableChooser<Command> autoChooser;
   private PowerDistribution PDP;
@@ -206,35 +176,10 @@ public class RobotContainer {
     // = new PathPlannerPath(null, DEFAUL_PATH_CONSTRAINTS, null, climberExists);
     limelightInit();
     driveTrainInst();
-    
-    if(intakeExists) {intakeInst(); /* Must happen before indexInit */}
-    if(shooterExists) {shooterInst();}
-    if(angleShooterExists) {angleShooterInst();}
-    if(climberExists) {climberInst();}
-    climbSpotChooserInit();
-    if(lightsExist) {lightsInst();}
-    if(indexerExists) {indexInit();}
-    if(intakeExists && shooterExists && indexerExists && angleShooterExists) {indexCommandInst();}
-    Limelight.useDetectorLimelight(useDetectorLimelight);
-    configureBindings();
-    autoInit();
+
     // Configure the trigger bindings
   }
-  private void climbSpotChooserInit() {
-    climbSpotChooser = new SendableChooser<String>();
-    climbSpotChooser.addOption("Climb L-Chain Amp", "L-Chain Amp");
-    climbSpotChooser.addOption("Climb L-Chain Middle", "L-Chain Middle");
-    climbSpotChooser.addOption("Climb L-Chain Source", "L-Chain Source");
 
-    climbSpotChooser.addOption("Climb Mid-Chain Source", "Mid-Chain Source");
-    climbSpotChooser.addOption("Climb Mid-Chain Amp", "Mid-Chain Amp");
-    climbSpotChooser.addOption("Climb Mid-Chain Middle", "Mid-Chain Middle");
-
-    climbSpotChooser.addOption("Climb R-Chain Source", "R-Chain Source");
-    climbSpotChooser.addOption("Climb R-Chain Right", "R-Chain Right");
-    climbSpotChooser.addOption("Climb R-Chain Amp", "R-Chain Amp");
-    SmartDashboard.putData(climbSpotChooser);
-  }
   private void driveTrainInst() {
     driveTrain = new DrivetrainSubsystem();
     defaultDriveCommand = new Drive(
@@ -245,45 +190,15 @@ public class RobotContainer {
       () -> modifyAxis(-driverController.getRawAxis(Z_AXIS), DEADBAND_NORMAL));
       driveTrain.setDefaultCommand(defaultDriveCommand);
   }
-  private void shooterInst() {
-    shooter = new ShooterSubsystem(ShooterConstants.SHOOTER_MOTOR_POWER);
-  }
-  private void angleShooterInst(){
-    angleShooterSubsystem = new AngleShooterSubsystem();
-    defaultShooterAngleCommand = new AimShooter(angleShooterSubsystem, AmpAngleSup, HumanPlaySup, SubwooferAngleSup, StageAngleSup, GroundIntakeSup, FarStageAngleSup, OverStagePassSup, OppositeStageShotSup, CenterAmpPassSup);
-    angleShooterSubsystem.setDefaultCommand(defaultShooterAngleCommand);
-  }
-  private void intakeInst() {
-    intake = new IntakeSubsystem();
-  }
-  private void climberInst() {
-    climber = new Climber();
-    climber.setDefaultCommand(new ClimberCommand(
-      climber,
-      ()-> modifyAxis(operatorController.getLeftY(), DEADBAND_NORMAL),
-      ()-> modifyAxis(operatorController.getRightY(), DEADBAND_NORMAL),
-      ClimberDownSup));
-  }
-  private void indexInit() {
-    indexer = new IndexerSubsystem(intakeExists ? intake::isNoteSeen : () -> false);
-  }
-  private void indexCommandInst() {
-    defaulNoteHandlingCommand = new IndexCommand(indexer, ShootIfReadySup, AimWhileMovingSup, shooter, intake, driveTrain, angleShooterSubsystem, HumanPlaySup, StageAngleSup, SubwooferAngleSup, GroundIntakeSup, FarStageAngleSup, OperatorRevToZero, intakeReverse, OverStagePassSup, OppositeStageShotSup);
-    indexer.setDefaultCommand(defaulNoteHandlingCommand);
-  }
+
 
   private void autoInit() {
     configureDriveTrain();
-    registerNamedCommands();
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
   private void limelightInit() {
     limelight = Limelight.getInstance();
-  }
-  private void lightsInst() {
-    lights = new Lights();
-    lights.setDefaultCommand(new IndicatorLights(lights));
   }
   
 
@@ -331,92 +246,8 @@ public class RobotContainer {
     //   )
     // );
 
-    if(Preferences.getBoolean("Detector Limelight", false)) {
-      Command AutoGroundIntake = new SequentialCommandGroup(
-        new GroundIntake(intake, indexer, driveTrain, angleShooterSubsystem),
-        new InstantCommand(()->intake.setNoteHeld(true))
-      );
-      autoPickup = new ParallelRaceGroup(
-        new SequentialCommandGroup(
-          new InstantCommand(()->angleShooterSubsystem.setDesiredShooterAngle(30), angleShooterSubsystem),
-          new GroundIntake(intake, indexer, driveTrain, angleShooterSubsystem),
-          new InstantCommand(()->intake.setNoteHeld(true))),
-        new SequentialCommandGroup(
-          new CollectNote(driveTrain, limelight),
-          new DriveTimeCommand(-1, 0, 0, 1.5, driveTrain),
-          new DriveTimeCommand(1, 0, 0, 0.5, driveTrain),
-          new DriveTimeCommand(-1, 0, 0, 0.5, driveTrain),
-          new WaitCommand(0.5)
-          )).withTimeout(4);
-      podiumAutoPickup = new ParallelRaceGroup(
-          new SequentialCommandGroup(
-            new GroundIntake(intake, indexer, driveTrain, angleShooterSubsystem),
-            new InstantCommand(()->intake.setNoteHeld(true))),
-          new SequentialCommandGroup(
-            new PodiumCollectNote(driveTrain, limelight),
-            new DriveTimeCommand(-1, 0, 0, 0.5, driveTrain),
-            new DriveTimeCommand(1, 0, 0, 0.5, driveTrain),
-            new DriveTimeCommand(-1, 0, 0, 0.5, driveTrain),
-            new MoveMeters(driveTrain, 0.5, 0, -1, 0),
-            new WaitCommand(0.5)
-          )).withTimeout(4);
-      // new Trigger(driverController::getR3ButtonPressed).whileTrue(GroundIntake);
-      new Trigger(AutoPickupSup).whileTrue(autoPickup);
-    }
-    new Trigger(ForceVisionSup).onTrue(new InstantCommand(()->SmartDashboard.putBoolean("force use limelight", true))).onFalse(new InstantCommand(()->SmartDashboard.putBoolean("force use limelight", false)));
-    SmartDashboard.putData("force update limelight position", new InstantCommand(()->driveTrain.forceUpdateOdometryWithVision(), driveTrain));
-    if(angleShooterExists) {
-      new Trigger(ShooterUpManualSup).whileTrue(new AngleShooter(angleShooterSubsystem, ()->ShooterConstants.PRAC_MAXIMUM_SHOOTER_ANGLE));
-      SmartDashboard.putData("Manual Angle Shooter Up", new AngleShooter(angleShooterSubsystem, ()->ShooterConstants.PRAC_MAXIMUM_SHOOTER_ANGLE));
-    }
-    if(indexerExists) {
-      new Trigger(ManualShootSup).whileTrue(new ManualShoot(indexer, driverController::getPOV, intake));
-    }
-    if(climberExists) {
-    }
-    if(shooterExists) {
-    }
-    if(intakeExists&&indexerExists) {
-      new Trigger(GroundIntakeSup).whileTrue(new GroundIntake(intake, indexer, driveTrain, angleShooterSubsystem));
-    }
-    if(intakeExists&&indexerExists) {
-      new Trigger(intake::isNoteSeen).and(()->!intake.isNoteHeld()).and(()->DriverStation.isTeleop()).and(()->!AimWhileMovingSup.getAsBoolean()).onTrue(new IndexerNoteAlign(indexer, intake).withInterruptBehavior(InterruptionBehavior.kCancelIncoming).withTimeout(5));
-    }
-    if(indexerExists&&shooterExists&&angleShooterExists) {
-      double indexerAmpSpeed;
-      double shooterAmpSpeed;
-      if(Preferences.getBoolean("CompBot", true)) {
-        shooterAmpSpeed = ShooterConstants.COMP_AMP_RPS;
-        indexerAmpSpeed = IndexerConstants.COMP_INDEXER_AMP_SPEED;
-      } else {
-        shooterAmpSpeed = ShooterConstants.PRAC_AMP_RPS;
-        indexerAmpSpeed = IndexerConstants.PRAC_INDEXER_AMP_SPEED;
-      }
-      SequentialCommandGroup scoreAmp = new SequentialCommandGroup(
-        // new InstantCommand(()->shooter.shootSameRPS(ShooterConstants.AMP_RPS), shooter),
-        new InstantCommand(()->shooter.shootWithSupplier(()->shooterAmpSpeed, true), shooter),
-        new MoveMeters(driveTrain, 0.06, 0.3, 0, 0),
-        // new WaitCommand(2),
-        new WaitUntil(()->(shooter.validShot() && driveTrain.getChassisSpeeds().vxMetersPerSecond == 0)),
-        new InstantCommand(()->indexer.magicRPS(indexerAmpSpeed), indexer),//45 worked but a bit too high
-        new WaitCommand(0.5),
-        new InstantCommand(()->intake.setNoteHeld(false))
-        );
-        SmartDashboard.putNumber("Indexer Amp Speed", indexerAmpSpeed);
-      SequentialCommandGroup orbitAmpShot = new SequentialCommandGroup(
-        new InstantCommand(()->shooter.setTargetVelocity(shooterAmpSpeed, shooterAmpSpeed, 50, 50), shooter),
-        new MoveMeters(driveTrain, 0.015, 0.5, 0, 0),
-        new InstantCommand(driveTrain::pointWheelsInward, driveTrain),
-        new InstantCommand(()->angleShooterSubsystem.setDesiredShooterAngle(50), angleShooterSubsystem),
-        new WaitUntil(()->(Math.abs(shooter.getLSpeed()-shooterAmpSpeed)<0.2)&&(Math.abs(shooter.getRSpeed()-shooterAmpSpeed)<0.3)),
-        new InstantCommand(()->angleShooterSubsystem.setDesiredShooterAngle(Field.AMPLIFIER_SHOOTER_ANGLE)),
-        new InstantCommand(()->indexer.magicRPSSupplier(()->indexerAmpSpeed), indexer),
-        new WaitCommand(0.5),
-        new InstantCommand(()->intake.setNoteHeld(false))
-      );
-        new Trigger(AmpAngleSup).whileTrue(orbitAmpShot);
-        SmartDashboard.putData("amp shot", scoreAmp);
-    }
+    
+
     SmartDashboard.putData("move 1 meter", new MoveMeters(driveTrain, 1, 0.2, 0.2, 0.2));
     InstantCommand setOffsets = new InstantCommand(driveTrain::setEncoderOffsets) {
       public boolean runsWhenDisabled() {
@@ -444,47 +275,6 @@ public class RobotContainer {
  *    
  */
 //FOR TESTING PURPOSES:
-    if(intakeExists) {
-      SmartDashboard.putData("intake on",new SequentialCommandGroup(
-        new InstantCommand(()->intake.intakeYes(IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SIDE_SPEED), intake)
-        // new InstantCommand(()->intake.intakeSideWheels(0.5), intake)));
-      ));
-      SmartDashboard.putData("intake off", new InstantCommand(intake::intakeOff, intake));
-    }
-    if(shooterExists) {
-      SmartDashboard.putData("shooter on speaker", new InstantCommand(()->shooter.shootRPS(ShooterConstants.LONG_SHOOTING_RPS), shooter));
-      SmartDashboard.putData("shooter on amp", new InstantCommand(()->shooter.shootRPS(ShooterConstants.PRAC_AMP_RPS), shooter));
-      SmartDashboard.putNumber("run shooter speed", ShooterConstants.LONG_SHOOTING_RPS);
-      SmartDashboard.putData("shooterSubsystem", shooter);
-      SmartDashboard.putData("run shooter", new OverrideCommand(shooter) {
-        @Override public void execute() { shooter.shootRPS(SmartDashboard.getNumber("run shooter speed", ShooterConstants.LONG_SHOOTING_RPS)); }
-        @Override public void end(boolean interrupted) { shooter.turnOff(); }
-      });
-    }
-    if(angleShooterExists) {
-      double testAngle = 45;
-      SmartDashboard.putData("go to angle", new AngleShooter(angleShooterSubsystem, ()->testAngle));
-      SmartDashboard.putData("run indexer down slow", new InstantCommand(()->angleShooterSubsystem.pitchShooter(0.02), angleShooterSubsystem));
-      SmartDashboard.putData("run indexer up slow", new InstantCommand(()->angleShooterSubsystem.pitchShooter(-0.02), angleShooterSubsystem));
-      SmartDashboard.putData("stop pitch", new InstantCommand(()->angleShooterSubsystem.pitchShooter(0), angleShooterSubsystem));
-      SmartDashboard.putData("set reference to 60", new InstantCommand(()->angleShooterSubsystem.setDesiredShooterAngle(60)));
-      SmartDashboard.putData("set reference to 30", new InstantCommand(()->angleShooterSubsystem.setDesiredShooterAngle(45)));
-      SmartDashboard.putData("set reference to 15", new InstantCommand(()->angleShooterSubsystem.setDesiredShooterAngle(17)));
-    }
-    if(indexerExists) {
-      SmartDashboard.putData("indexer intake speed", new InstantCommand(()->indexer.set(IndexerConstants.INDEXER_INTAKE_SPEED)));
-      SmartDashboard.putData("indexer shooting speed", new InstantCommand(()->indexer.set(IndexerConstants.INDEXER_SHOOTING_POWER)));
-      SmartDashboard.putData("indexer off", new InstantCommand(()->indexer.off()));
-    }
-    if(climberExists) {
-      SmartDashboard.putData("climber up", new InstantCommand(()->{
-      climber.climberGoLeft(ClimberConstants.CLIMBER_SPEED_UP);
-      climber.climberGoRight(ClimberConstants.CLIMBER_SPEED_UP);}));
-      SmartDashboard.putData("climber down", new InstantCommand(()->{
-      climber.climberGoLeft(ClimberConstants.CLIMBER_SPEED_DOWN);
-      climber.climberGoRight(ClimberConstants.CLIMBER_SPEED_DOWN);}));
-      SmartDashboard.putData("climber stop", new InstantCommand(()-> climber.climberStop()));
-    }
   };
 
 
@@ -539,102 +329,8 @@ public class RobotContainer {
     );
   }
 
-  private void registerNamedCommands() {
-    NamedCommands.registerCommand("awayFromPodium", new MoveMeters(driveTrain, 0.2, 1, 0, 0));
-    NamedCommands.registerCommand("stopDrivetrain", new InstantCommand(driveTrain::stop, driveTrain));
-    NamedCommands.registerCommand("hardStop", new InstantCommand(driveTrain::pointWheelsInward, driveTrain));
-    if(intakeExists&&indexerExists) {
-    NamedCommands.registerCommand("driveBackwardsToIntake", new ParallelRaceGroup(
-      new SequentialCommandGroup(
-        new MoveMeters(driveTrain, 0.7, -2, 0, 0),
-        new MoveMeters(driveTrain, 0.7, 2, 0, 0)),
-      new AutoGroundIntake(indexer, intake, driveTrain)
-    ));
-    }
-    if(autoPickup != null) {
-      NamedCommands.registerCommand("autoPickup", autoPickup);
-      NamedCommands.registerCommand("podiumAutoPickup", podiumAutoPickup);
-    }
-    if(intakeExists&&!indexerExists&&!angleShooterExists) {
-      NamedCommands.registerCommand("groundIntake", new InstantCommand(()->intake.intakeYes(IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SIDE_SPEED)));
-      NamedCommands.registerCommand("autoShootNote", new AimRobotMoving(driveTrain, zeroSup, zeroSup, zeroSup, ()->true, falseSup, falseSup, falseSup, falseSup, falseSup, falseSup).withTimeout(1));
-      NamedCommands.registerCommand("autoPickup", new SequentialCommandGroup(
-        new CollectNote(driveTrain, limelight),
-        new DriveTimeCommand(-1, 0, 0, 1, driveTrain)
-      ).withTimeout(3));
-    }
-    if(shooterExists) {
-      NamedCommands.registerCommand("shooterOn", new InstantCommand(()->shooter.shootRPS(LONG_SHOOTING_RPS), shooter));
-      SmartDashboard.putData("shooterOn", new InstantCommand(()->shooter.shootRPS(LONG_SHOOTING_RPS), shooter));
-    }
-    if(intakeExists&&indexerExists&&angleShooterExists) {
-      NamedCommands.registerCommand("shootNote", new ShootNote(indexer, 0.2, 0, intake));
-      NamedCommands.registerCommand("sourceSideLongShot", new SequentialCommandGroup(
-        new InstantCommand(()->angleShooterSubsystem.setDesiredShooterAngle(22.5), angleShooterSubsystem),
-        new ParallelRaceGroup(
-          new AimRobotMoving(driveTrain, zeroSup, zeroSup, zeroSup, ()->true, falseSup, falseSup, falseSup, falseSup, falseSup, ()->true),
-          new ShootNote(indexer, 0.5, 0.4, intake)
-        )
-      ));
-      NamedCommands.registerCommand("midAmpSideShooterAngle", new OverrideCommand(angleShooterSubsystem) {
-        public void execute() {
-          angleShooterSubsystem.setDesiredShooterAngle(27);
-        };
-      });
-      NamedCommands.registerCommand("lowAmpSideShooterAngle", new OverrideCommand(angleShooterSubsystem) {
-        public void execute() {
-          angleShooterSubsystem.setDesiredShooterAngle(29.5);
-        };
-      });
-    }
-    if(indexerExists) {
-      // NamedCommands.registerCommand("feedShooter", new InstantCommand(()->indexer.set(IndexerConstants.INDEXER_SHOOTING_SPEED), indexer));
-      // NamedCommands.registerCommand("stopFeedingShooter", new InstantCommand(indexer::off, indexer));
-    }
-    if(intakeExists) {
-      NamedCommands.registerCommand("intakeOn", new InstantCommand(()-> intake.intakeYes(IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SIDE_SPEED)));
-      if(sideWheelsExists){
-        NamedCommands.registerCommand("intakeSideWheels", new InstantCommand(()-> intake.intakeSideWheels(1)));
-      }
-      NamedCommands.registerCommand("note isn't held", new WaitUntil(()->!intake.isNoteSeen()));
-    }
-    if(indexerExists&&shooterExists) {
-      NamedCommands.registerCommand("initialShot", new InitialShot(shooter, indexer, 0.9, 0.1, angleShooterSubsystem));
-      //the following command will both aim the robot at the speaker (with the AimRobotMoving), and shoot a note while aiming the shooter (with shootNote). As a race group, it ends
-      //when either command finishes. the AimRobotMoving command will never finish, but the shootNote finishes when shootTime is reached.
-      NamedCommands.registerCommand("autoShootNote", new ParallelRaceGroup(
-        new AimRobotMoving(driveTrain, zeroSup, zeroSup, zeroSup, ()->true, falseSup, falseSup, falseSup, falseSup, falseSup, falseSup),
-        new SequentialCommandGroup(
-          new InstantCommand(()->angleShooterSubsystem.setDesiredShooterAngle(angleShooterSubsystem.calculateSpeakerAngle()), angleShooterSubsystem),
-          new ShootNote(indexer, 1.5, 0.5,intake)
-        )));
-      // NamedCommands.registerCommand("setFeedTrue", new InstantCommand(()->SmartDashboard.putBoolean("feedMotor", true)));
-      // NamedCommands.registerCommand("setFeedFalse", new InstantCommand(()->SmartDashboard.putBoolean("feedMotor", false)));
-    }
-    if(angleShooterExists) {
-      //the same command that we use during teleop, but all the buttons that would aim the shooter anywhere other than the speaker are set to false.
-      NamedCommands.registerCommand("autoAimAtSpeaker", new AimShooter(angleShooterSubsystem, ()->false, ()->false, ()->false, ()->false, ()->false, ()->false, ()->false, ()->false, ()->false));
-      SmartDashboard.putData("autoAimAtSpeaker", new AimShooter(angleShooterSubsystem, ()->false, ()->false, ()->false, ()->false, ()->false, ()->false, ()->false, ()->false, ()->false));
-    }
-    if (indexerExists&&intakeExists) {
-      NamedCommands.registerCommand("groundIntake", new AutoGroundIntake(indexer, intake, driveTrain));
-      SmartDashboard.putData("groundIntake", new AutoGroundIntake(indexer, intake, driveTrain));
-    }
-    NamedCommands.registerCommand("wait x seconds", new WaitCommand(Preferences.getDouble("wait # of seconds", 0)));
-  }
   public void teleopInit() {
-    if(climberExists) {
-      SequentialCommandGroup resetClimbers = new SequentialCommandGroup(
-        new InstantCommand(()->{climber.climberGoLeft(ClimberConstants.CLIMBER_SPEED_DOWN);climber.climberGoRight(ClimberConstants.CLIMBER_SPEED_DOWN);}, climber),
-        new WaitCommand(2),
-        new InstantCommand(()->climber.climberStop(), climber),
-        new InstantCommand(climber::resetInitial)
-        );
-      resetClimbers.schedule();
-      }
-      if(angleShooterExists) {
-        angleShooterSubsystem.pitchShooter(0);
-      }
+
   }
   public void teleopPeriodic() {
     SmartDashboard.putData(driveTrain.getCurrentCommand());
@@ -662,8 +358,5 @@ public class RobotContainer {
   }
 
   public void disabledInit() {
-    if(angleShooterExists) {
-      new InstantCommand(angleShooterSubsystem::stop, angleShooterSubsystem);
-    }
   }
 }
