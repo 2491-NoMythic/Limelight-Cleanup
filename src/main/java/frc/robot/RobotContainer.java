@@ -24,18 +24,14 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import frc.robot.commands.AimRobotMoving;
 import frc.robot.commands.Drive;
 import frc.robot.commands.DriveTimeCommand;
-import frc.robot.commands.NamedCommands.AutoGroundIntake;
 import frc.robot.settings.Constants;
 import frc.robot.settings.Constants.DriveConstants;
 import frc.robot.settings.Constants.Field;
 import frc.robot.settings.Constants.ShooterConstants;
 import frc.robot.commands.MoveMeters;
-import frc.robot.commands.OverrideCommand;
 import frc.robot.commands.WaitUntil;
 
-import frc.robot.commands.NamedCommands.InitialShot;
-import frc.robot.commands.NamedCommands.ShootNote;
-import frc.robot.commands.NamedCommands.AutoGroundIntake;
+
 import frc.robot.commands.goToPose.GoToAmp;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Limelight;
